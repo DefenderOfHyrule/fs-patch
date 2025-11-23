@@ -12,6 +12,7 @@ firmware
 *.ovl
 *.nca
 *.nro
+*.zip
 out
 ignoreme
 .vscode/settings.json

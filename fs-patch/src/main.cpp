@@ -442,11 +442,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    const auto emummc = is_emummc();
-    bool enable_patching = true;
+   const auto emummc = is_emummc();
+    bool enable_patching = false;
 
-    if (!patch_emummc && emummc) {
-        enable_patching = false;
+    if (emummc && patch_emummc) {
+        enable_patching = true;
     }
 
     const auto ticks_start = armGetSystemTick();
@@ -463,9 +463,6 @@ int main(int argc, char* argv[]) {
     if (enable_logging) {
         for (auto& patch : patches) {
             for (auto& p : patch.patterns) {
-                if (!enable_patching) {
-                    p.result = PatchResult::SKIPPED;
-                }
                 ini_puts(patch.name, p.patch_name, patch_result_to_str(p.result), log_path);
             }
         }

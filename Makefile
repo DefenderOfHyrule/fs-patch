@@ -2,7 +2,7 @@ MAKEFILES := fs-patch overlay
 TARGETS		:= $(foreach dir,$(MAKEFILES),$(CURDIR)/$(dir))
 
 # the below was taken from atmosphere + switch-examples makefile
-export VERSION := 1.0.0
+export VERSION := 1.0.1
 export GIT_BRANCH := release
 export GIT_REVISION := $(VERSION)
 export VERSION_DIRTY := $(VERSION)
