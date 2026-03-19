@@ -75,6 +75,7 @@ Yes, in 3 situations.
 
 Software is built on the shoulders of giants. This tool wouldn't be possible without these people:
 
+- ITotalJustice
 - MrDude
 - BornToHonk (farni)
 - TeJay

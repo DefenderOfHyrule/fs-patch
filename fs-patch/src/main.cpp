@@ -20,17 +20,6 @@ u8 AMS_KEYGEN{};
 u64 AMS_HASH{};
 bool VERSION_SKIP{};
 
-struct DebugEventInfo {
-    u32 event_type;
-    u32 flags;
-    u64 thread_id;
-    u64 title_id;
-    u64 process_id;
-    char process_name[12];
-    u32 mmu_flags;
-    u8 _0x30[0x10];
-};
-
 template<typename T>
 constexpr void str2hex(const char* s, T* data, u8& size) {
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
@@ -46,7 +35,7 @@ constexpr void str2hex(const char* s, T* data, u8& size) {
     while (*s != '\0') {
         if (sizeof(T) == sizeof(u16) && *s == '.') {
             data[size] = REGEX_SKIP;
-            s++;
+            s += 2; // consume both dots of ".."
         } else {
             data[size] |= hexstr_2_nibble(*s++) << 4;
             data[size] |= hexstr_2_nibble(*s++) << 0;
@@ -60,7 +49,7 @@ struct PatternData {
         str2hex(s, data, size);
     }
 
-    u16 data[44]{};
+    u16 data[60]{};
     u8 size{};
 };
 
@@ -119,12 +108,15 @@ struct PatchEntry {
 // Condition functions
 constexpr auto cmp_cond(u32 inst) -> bool {
     const auto type = inst >> 24;
-    return type == 0x6B;
+    return type == 0x6B || // cmp w0, w1
+           type == 0xF1;   // cmp x0, #0x1
 }
 
 constexpr auto bl_cond(u32 inst) -> bool {
     const auto type = inst >> 24;
-    return type == 0x25 || type == 0x94;
+    return type == 0x25 ||
+           type == 0x94 ||
+           type == 0x97;
 }
 
 constexpr auto tbz_cond(u32 inst) -> bool {
@@ -154,16 +146,21 @@ constexpr auto cmp_applied(const u8* data, u32 inst) -> bool {
 
 // FS patterns
 constinit Patterns fs_patterns[] = {
-    { "noncasigchk_old", "0x0036.......71..0054..4839", -2, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(10,0,0), MAKEHOSVERSION(16,1,0) },
-    { "noncasigchk_old2", "0x.94..0036.258052", 2, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(17,0,0), MAKEHOSVERSION(20,5,0) },
-    { "noncasigchk_new", "0x.94..0036.........258052", 2, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(21,0,0), FW_VER_ANY },
-    { "nocntchk", "0x40f9...9408.0012.050071", 2, 0, bl_cond, ret0_patch, ret0_applied, true, MAKEHOSVERSION(10,0,0), MAKEHOSVERSION(18,1,0) },
-    { "nocntchk2", "0x40f9...94..40b9..0012", 2, 0, bl_cond, ret0_patch, ret0_applied, true, MAKEHOSVERSION(19,0,0), FW_VER_ANY },
+    // noacidsigchk: moved to loader in 10.0.0
+    { "noacidsigchk_1.0.0-9.2.0", "0xC8FE4739", -24, 0, bl_cond, ret0_patch, ret0_applied, true, FW_VER_ANY, MAKEHOSVERSION(9,2,0) },
+    { "noacidsigchk_1.0.0-9.2.0", "0x0210911F000072", -5, 0, bl_cond, ret0_patch, ret0_applied, true, FW_VER_ANY, MAKEHOSVERSION(9,2,0) },
+    // noncasigchk
+    { "noncasigchk_1.0.0-3.0.2", "0x88..42..58", -4, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(1,0,0), MAKEHOSVERSION(3,0,2) },
+    { "noncasigchk_4.0.0-16.1.0", "0x1E4839....00......0054", -17, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(4,0,0), MAKEHOSVERSION(16,1,0) },
+    { "noncasigchk_17.0.0+", "0x0694....00..42..0091", -18, 0, tbz_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(17,0,0), FW_VER_ANY },
+    // nocntchk
+    { "nocntchk_1.0.0-18.1.0", "0x40F9........081C00121F05", 2, 0, bl_cond, ret0_patch, ret0_applied, true, MAKEHOSVERSION(1,0,0), MAKEHOSVERSION(18,1,0) },
+    { "nocntchk_19.0.0+", "0x40F9............40B9091C", 2, 0, bl_cond, ret0_patch, ret0_applied, true, MAKEHOSVERSION(19,0,0), FW_VER_ANY },
 };
 
 // LDR patterns
 constinit Patterns ldr_patterns[] = {
-    { "noacidsigchk", "009401C0BE121F00", 6, 2, cmp_cond, cmp_patch, cmp_applied, true, FW_VER_ANY },
+    { "noacidsigchk_10.0.0+", "0x009401C0BE121F00", 6, 2, cmp_cond, cmp_patch, cmp_applied, true, FW_VER_ANY }, // 1F00016B - cmp w0, w1 patched to 1F00006B - cmp w0, w0
 };
 
 // Only FS and LDR patches
@@ -269,7 +266,7 @@ auto apply_patch(PatchEntry& patch) -> bool {
     for (s32 i = 0; i < (process_count - 1); i++) {
         if (R_SUCCEEDED(svcDebugActiveProcess(&handle, pids[i])) &&
             R_SUCCEEDED(svcGetDebugEvent(&event_info, handle)) &&
-            patch.title_id == event_info.title_id) {
+            patch.title_id == event_info.info.create_process.program_id) {
             MemoryInfo mem_info{};
             u64 addr{};
             u32 page_info{};

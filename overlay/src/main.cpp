@@ -96,28 +96,32 @@ public:
         auto list = new tsl::elm::List();
 
         list->addItem(new tsl::elm::CategoryHeader("FS - 0100000000000000"));
-        list->addItem(config_noncasigchk_old.create_list_item("noncasigchk_old"));
-        list->addItem(config_noncasigchk_old2.create_list_item("noncasigchk_old2"));
-        list->addItem(config_noncasigchk_new.create_list_item("noncasigchk_new"));
-        list->addItem(config_nocntchk.create_list_item("nocntchk"));
-        list->addItem(config_nocntchk2.create_list_item("nocntchk2"));
+        list->addItem(config_noacidsigchk1.create_list_item("noacidsigchk_1.0.0-9.2.0"));
+        list->addItem(config_noacidsigchk2.create_list_item("noacidsigchk_1.0.0-9.2.0"));
+        list->addItem(config_noncasigchk1.create_list_item("noncasigchk_1.0.0-3.0.2"));
+        list->addItem(config_noncasigchk2.create_list_item("noncasigchk_4.0.0-16.1.0"));
+        list->addItem(config_noncasigchk3.create_list_item("noncasigchk_17.0.0+"));
+        list->addItem(config_nocntchk1.create_list_item("nocntchk_1.0.0-18.1.0"));
+        list->addItem(config_nocntchk2.create_list_item("nocntchk_19.0.0+"));
 
         list->addItem(new tsl::elm::CategoryHeader("LDR - 0100000000000001"));
-        list->addItem(config_noacidsigchk.create_list_item("noacidsigchk"));
+        list->addItem(config_noacidsigchk4.create_list_item("noacidsigchk_10.0.0+"));
 
         frame->setContent(list);
         return frame;
     }
 
     // FS patches
-    ConfigEntry config_noncasigchk_old{"fs", "noncasigchk_old", true};
-    ConfigEntry config_noncasigchk_old2{"fs", "noncasigchk_old2", true};
-    ConfigEntry config_noncasigchk_new{"fs", "noncasigchk_new", true};
-    ConfigEntry config_nocntchk{"fs", "nocntchk", true};
-    ConfigEntry config_nocntchk2{"fs", "nocntchk2", true};
-    
+    ConfigEntry config_noacidsigchk1{"fs", "noacidsigchk_1.0.0-9.2.0", true};
+    ConfigEntry config_noacidsigchk2{"fs", "noacidsigchk_1.0.0-9.2.0", true};
+    ConfigEntry config_noncasigchk1{"fs", "noncasigchk_1.0.0-3.0.2", true};
+    ConfigEntry config_noncasigchk2{"fs", "noncasigchk_4.0.0-16.1.0", true};
+    ConfigEntry config_noncasigchk3{"fs", "noncasigchk_17.0.0+", true};
+    ConfigEntry config_nocntchk1{"fs", "nocntchk_1.0.0-18.1.0", true};
+    ConfigEntry config_nocntchk2{"fs", "nocntchk_19.0.0+", true};
+
     // LDR patches
-    ConfigEntry config_noacidsigchk{"ldr", "noacidsigchk", true};
+    ConfigEntry config_noacidsigchk4{"ldr", "noacidsigchk_10.0.0+", true};
 };
 
 class GuiLog final : public tsl::Gui {
