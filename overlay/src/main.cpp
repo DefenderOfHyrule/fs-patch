@@ -75,6 +75,7 @@ public:
 
         list->addItem(new tsl::elm::CategoryHeader("Options"));
         list->addItem(config_patch_emummc.create_list_item("Patch emuMMC"));
+        list->addItem(config_patch_sysmmc.create_list_item("Patch sysMMC"));
         list->addItem(config_logging.create_list_item("Logging"));
         list->addItem(config_version_skip.create_list_item("Version skip"));
 
@@ -83,6 +84,7 @@ public:
     }
 
     ConfigEntry config_patch_emummc{"options", "patch_emummc", true};
+    ConfigEntry config_patch_sysmmc{"options", "patch_sysmmc", false};
     ConfigEntry config_logging{"options", "enable_logging", true};
     ConfigEntry config_version_skip{"options", "version_skip", true};
 };

@@ -39,7 +39,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 APP_TITLE	:=	fs-patch
 APP_AUTHOR	:=	TotalJustice & DefenderOfHyrule
-APP_VERSION :=	1.1.0
+APP_VERSION :=	1.1.1
 
 TARGET		:=	fs-patch-overlay
 BUILD		:=	build

@@ -13,6 +13,7 @@ The configuration file can be found in `/config/fs-patch/config.ini`. The file i
 ```ini
 [options]
 patch_emummc=1   ; 1=(default) patch emummc, 0=don't patch emummc
+patch_sysmmc=0   ; 0=(default) don't patch sysmmc, 1= patch sysmmc
 enable_logging=1 ; 1=(default) output /config/fs-patch/log.ini 0=no log
 version_skip=1   ; 1=(default) skips out of date patterns, 0=search all patterns
 ```

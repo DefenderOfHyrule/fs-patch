@@ -427,6 +427,7 @@ int main(int argc, char* argv[]) {
     ini_remove(log_path);
 
     const auto patch_emummc = ini_load_or_write_default("options", "patch_emummc", 1, ini_path);
+    const auto patch_sysmmc = ini_load_or_write_default("options", "patch_sysmmc", 0, ini_path);
     const auto enable_logging = ini_load_or_write_default("options", "enable_logging", 1, ini_path);
     VERSION_SKIP = ini_load_or_write_default("options", "version_skip", 1, ini_path);
 
@@ -439,11 +440,15 @@ int main(int argc, char* argv[]) {
         }
     }
 
-   const auto emummc = is_emummc();
-    bool enable_patching = false;
+    const auto emummc = is_emummc();
+    bool enable_patching = true;
 
-    if (emummc && patch_emummc) {
-        enable_patching = true;
+    if (!patch_sysmmc && !emummc) {
+        enable_patching = false;
+    }
+
+    if (!patch_emummc && emummc) {
+        enable_patching = false;
     }
 
     const auto ticks_start = armGetSystemTick();
